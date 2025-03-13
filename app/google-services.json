@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "996158944829",
+    "project_id": "avivamientosaer2025",
+    "storage_bucket": "avivamientosaer2025.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:996158944829:android:8a5a1293e94e32bb57dc54",
+        "android_client_info": {
+          "package_name": "com.saeo.fhn_Avivamiento"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDpiR0j-ayInJBl6zGOqSuxecw0EHAHUAo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
