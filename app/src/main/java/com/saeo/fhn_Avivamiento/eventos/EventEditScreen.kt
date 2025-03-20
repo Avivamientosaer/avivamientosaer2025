@@ -5,6 +5,7 @@ import android.app.TimePickerDialog
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
@@ -40,6 +41,7 @@ fun EventEditScreen(
     var menCount by remember { mutableStateOf(event.menCount.toString()) }
     var womenCount by remember { mutableStateOf(event.womenCount.toString()) }
     var youthCount by remember { mutableStateOf(event.youthCount.toString()) }
+    var ministrationCount by remember { mutableStateOf(event.ministrationCount.toString()) }
     var place by remember { mutableStateOf(event.place) }
     var department by remember { mutableStateOf(event.department) }
     var message by remember { mutableStateOf("") }
@@ -91,41 +93,53 @@ fun EventEditScreen(
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth()
             )
+            // Campo para la cantidad de hombres y mujeres
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                // Campo para la cantidad de hombres
+                OutlinedTextField(
+                    value = menCount,
+                    onValueChange = { menCount = it },
+                    label = { Text("Cantidad de hombres") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    modifier = Modifier.weight(1f)
+                )
 
-            // Campo para la cantidad de hombres
-            OutlinedTextField(
-                value = menCount,
-                onValueChange = { menCount = it },
-                label = { Text("Cantidad de hombres") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = Modifier.fillMaxWidth()
-            )
+                // Campo para la cantidad de mujeres
+                OutlinedTextField(
+                    value = womenCount,
+                    onValueChange = { womenCount = it },
+                    label = { Text("Cantidad de mujeres") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    modifier = Modifier.weight(1f)
+                )
+            }
 
-            // Campo para la cantidad de mujeres
-            OutlinedTextField(
-                value = womenCount,
-                onValueChange = { womenCount = it },
-                label = { Text("Cantidad de mujeres") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = Modifier.fillMaxWidth()
-            )
+            // Campo para la cantidad de jóvenes y Ministracion
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                // Campo Jóvenes (50% del ancho)
+                OutlinedTextField(
+                    value = youthCount,
+                    onValueChange = { youthCount = it },
+                    label = { Text("Cantidad de Jóvenes") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    modifier = Modifier.weight(1f)
+                )
 
-            // Campo para la cantidad de jóvenes
-            OutlinedTextField(
-                value = youthCount,
-                onValueChange = { youthCount = it },
-                label = { Text("Cantidad de jóvenes") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            // Campo para el lugar o zona
-            OutlinedTextField(
-                value = place,
-                onValueChange = { place = it },
-                label = { Text("Lugar o zona") },
-                modifier = Modifier.fillMaxWidth()
-            )
+                // Campo Ministración (50% del ancho) - NUEVO
+                OutlinedTextField(
+                    value = ministrationCount,
+                    onValueChange = { ministrationCount = it },
+                    label = { Text("Ministraciónes") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    modifier = Modifier.weight(1f)
+                )
+            }
 
             // Campo para el departamento o región
             OutlinedTextField(
@@ -162,6 +176,7 @@ fun EventEditScreen(
                         menCount.toIntOrNull() ?: 0,
                         womenCount.toIntOrNull() ?: 0,
                         youthCount.toIntOrNull() ?: 0,
+                        ministrationCount.toIntOrNull() ?: 0,
                         place,
                         department,
                         selectedDateTime, // Pasar la nueva fecha y hora

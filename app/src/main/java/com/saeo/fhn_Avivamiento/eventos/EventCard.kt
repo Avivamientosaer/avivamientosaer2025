@@ -147,8 +147,43 @@ fun EventCard(
 
             Spacer(modifier = Modifier.height(5.dp))
 
-            // Línea de lugar
-            Text("Lugar: ${event.place}")
+            // Línea de Ministraciones y Lugar
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = buildAnnotatedString {
+                        withStyle(
+                            style = SpanStyle(
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF1976D2),
+                                fontSize = 20.sp
+                            )
+                        ) {
+                            append("${event.ministrationCount}")
+                        }
+                        append(" Ministraciones")
+                    }
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = buildAnnotatedString {
+                        withStyle(
+                            style = SpanStyle(
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF1976D2),
+                                fontSize = 20.sp
+                            )
+                        ) {
+                            append("Lugar:")
+                        }
+                        append(" ${event.place}")
+                    }
+                )
+            }
+
+            Spacer(modifier = Modifier.height(5.dp))
 
             // Botones de editar y eliminar
             Row(
@@ -159,7 +194,9 @@ fun EventCard(
                     Text("Editar")
                 }
                 Button(
-                    onClick = { showDeleteConfirmation = true }, // Mostrar el diálogo de confirmación
+                    onClick = {
+                        showDeleteConfirmation = true
+                    }, // Mostrar el diálogo de confirmación
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.error,
                         contentColor = MaterialTheme.colorScheme.onError
@@ -187,7 +224,6 @@ fun EventCard(
         }
     }
 }
-
 
 
 // Función de extensión para formatear la fecha

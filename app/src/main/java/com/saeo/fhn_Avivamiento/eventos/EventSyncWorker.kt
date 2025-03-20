@@ -23,25 +23,75 @@ class EventSyncWorker(
                 val eventDao = db.eventDao()
                 val firestore = FirebaseFirestore.getInstance()
 
-                // ✅ Permitir sincronización con datos móviles/WiFi
+                // ✅ 1. Verificación Inicial de Conexión
                 if (!NetworkUtils.isHighQualityConnection(applicationContext)) {
                     Log.d("EventSyncWorker", "Esperando conexión estable...")
                     return@withContext Result.retry()
                 }
 
-                // 1. Sincronizar eventos no sincronizados
+                // 🗑️ 2. Sincronizar Eventos Eliminados
+                if (!NetworkUtils.isHighQualityConnection(applicationContext)) {
+                    Log.d("EventSyncWorker", "🚫 Conexión perdida. Reintentando sincronización de eliminados...")
+                    return@withContext Result.retry()
+                }
+
+                val deletedEvents = eventDao.getDeletedEvents()
+                Log.d("EventSyncWorker", "🔄 Procesando ${deletedEvents.size} eventos eliminados...")
+                for (event in deletedEvents) {
+                    try {
+                        Log.d("EventSyncWorker", "🗑️ Eliminando evento ${event.id} de Firestore...")
+                        val eventRef = firestore.collection("events").document(event.id)
+                        eventRef.delete().await()
+                        val snapshot = eventRef.get().await()
+                        if (!snapshot.exists()) {
+                            eventDao.deleteEvent(event.id)
+                            Log.d("EventSyncWorker", "✅ Evento ${event.id} eliminado exitosamente.")
+                        } else {
+                            Log.w("EventSyncWorker", "⚠️ Evento ${event.id} aún existe en Firestore.")
+                        }
+                    } catch (e: Exception) {
+                        Log.e("EventSyncWorker", "❌ Error al eliminar evento ${event.id}: ${e.message}")
+                    }
+                }
+
+                // 🧹 3. Limpiar Eventos Eliminados Permanentemente
+                try {
+                    eventDao.deletePermanentlyDeletedEvents()
+                    Log.d("EventSyncWorker", "Eventos eliminados permanentemente limpiados.")
+                } catch (e: Exception) {
+                    Log.e("EventSyncWorker", "Error al limpiar eventos eliminados: ${e.message}")
+                }
+
+                // ⏳ 4. Procesar Eliminaciones Pendientes
+                val pendingDeletions = eventDao.getPendingDeletions()
+                Log.d("EventSyncWorker", "Eliminaciones pendientes: ${pendingDeletions.size}")
+                if (!NetworkUtils.isHighQualityConnection(applicationContext)) {
+                    Log.d("EventSyncWorker", "Conexión inestable. Reintentando eliminaciones pendientes más tarde.")
+                    return@withContext Result.retry()
+                }
+                Log.d("EventSyncWorker", "Procesando ${pendingDeletions.size} eliminaciones pendientes...")
+                for (deletion in pendingDeletions) {
+                    try {
+                        Log.d("EventSyncWorker", "Eliminando evento pendiente: ${deletion.eventId}")
+                        firestore.collection("events").document(deletion.eventId).delete().await()
+                        eventDao.deleteEvent(deletion.eventId)
+                        eventDao.deletePendingDeletion(deletion.eventId)
+                        Log.d("EventSyncWorker", "Evento ${deletion.eventId} eliminado exitosamente.")
+                    } catch (e: Exception) {
+                        Log.e("EventSyncWorker", "Error al eliminar evento pendiente ${deletion.eventId}: ${e.message}")
+                    }
+                }
+
+                // ⬆️ 5. Sincronizar Eventos Nuevos/Editados
                 val unsyncedEvents = eventDao.getUnsyncedEvents()
                 Log.d("EventSyncWorker", "Eventos no sincronizados: ${unsyncedEvents.size}")
-
                 for (event in unsyncedEvents) {
                     try {
                         val eventRef = firestore.collection("events").document(event.id)
                         eventRef.set(event.toMap()).await()
-
-                        // 🔄 Verificar si realmente existe en Firestore
                         val snapshot = eventRef.get().await()
                         if (snapshot.exists()) {
-                            eventDao.markEventAsSynced(event.id) // ✅ Solo si existe
+                            eventDao.markEventAsSynced(event.id)
                             Log.d("EventSyncWorker", "Evento ${event.id} confirmado en Firestore.")
                         } else {
                             Log.w("EventSyncWorker", "Evento ${event.id} no se subió correctamente.")
@@ -51,45 +101,7 @@ class EventSyncWorker(
                     }
                 }
 
-                // 2. Sincronizar eventos eliminados
-                val deletedEvents = eventDao.getDeletedEvents()
-                Log.d("EventSyncWorker", "Eventos eliminados: ${deletedEvents.size}")
-
-                for (event in deletedEvents) {
-                    try {
-                        val eventRef = firestore.collection("events").document(event.id)
-                        eventRef.delete().await()
-
-                        // 🔄 Verificar si fue eliminado de Firestore
-                        val snapshot = eventRef.get().await()
-                        if (!snapshot.exists()) {
-                            eventDao.deleteEvent(event.id) // ✅ Solo si ya no existe
-                            Log.d("EventSyncWorker", "Evento ${event.id} eliminado correctamente.")
-                        } else {
-                            Log.w("EventSyncWorker", "Evento ${event.id} aún existe en Firestore.")
-                        }
-                    } catch (e: Exception) {
-                        Log.e("EventSyncWorker", "Error al verificar eliminación: ${e.message}")
-                    }
-                }
-
-                // 3. Limpiar eventos eliminados permanentemente
-                eventDao.deletePermanentlyDeletedEvents()
-
-                // 4. Sincronizar eliminaciones pendientes
-                val pendingDeletions = eventDao.getPendingDeletions()
-                Log.d("EventSyncWorker", "Eliminaciones pendientes: ${pendingDeletions.size}")
-
-                // 🔄 Eliminar eventos de Firestore si existen en la cola de eliminaciones pendientes
-                for (deletion in pendingDeletions) {
-                    try {
-                        firestore.collection("events").document(deletion.eventId).delete().await() // Eliminar de Firestore
-                        eventDao.deleteEvent(deletion.eventId) // Eliminar de Room
-                        eventDao.deletePendingDeletion(deletion.eventId) // Eliminar de la cola
-                    } catch (_: Exception) { /* ... */ }
-                }
-
-
+                // ✅ 6. Finalización
                 Log.d("EventSyncWorker", "Sincronización de eventos completada exitosamente.")
                 Result.success()
             } catch (e: Exception) {
@@ -98,18 +110,17 @@ class EventSyncWorker(
             }
         }
     }
-
-
 }
 
 
-// Función de conversión (sin cambios)
+// Función de conversión
 fun Event.toMap(): Map<String, Any> {
     return mapOf(
         "eventNumber" to eventNumber,
         "menCount" to menCount,
         "womenCount" to womenCount,
         "youthCount" to youthCount,
+        "ministrationCount" to ministrationCount,
         "place" to place,
         "department" to department,
         "phoneNumberUser" to phoneNumberUser,

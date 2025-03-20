@@ -6,22 +6,28 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.saeo.fhn_Avivamiento.eventos.Event
+import com.saeo.fhn_Avivamiento.testimonios.data.*
 
 @Database(
     entities = [
         UserEntity::class,
         Event::class,
         CountryEntity::class,
-        PendingDeletion::class
+        PendingDeletion::class,
+        Testimony::class
     ],
-    version = 10, // Incrementar el número cuando se realicen cambios en la versión de la base de datos
+    version = 13, // Incrementar el número cuando se realicen cambios en la versión de la base de datos
     exportSchema = false
 )
-@TypeConverters(Converters::class) // Asegúrate de que esta línea esté presente
+@TypeConverters(
+    Converters::class,
+    TestimonyTypeConverter::class
+) // Asegúrate de que esta línea esté presente
 abstract class AppDatabase : RoomDatabase() {
     abstract fun userDao(): UserDao
     abstract fun eventDao(): EventDao
     abstract fun countryDao(): CountryDao
+    abstract fun testimonyDao(): TestimonyDao
 
     companion object {
         @Volatile

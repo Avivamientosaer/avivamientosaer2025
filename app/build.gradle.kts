@@ -78,6 +78,8 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx) // 🔹 Agregar esta línea
     ksp(libs.androidx.room.compiler) // 🔹 Usamos ksp en vez de kapt
+
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
 }
 
 // 🔹 Configurar argumentos de KSP para Room

@@ -10,6 +10,7 @@ data class Event(
     val menCount: Int,
     val womenCount: Int,
     val youthCount: Int,
+    val ministrationCount: Int,
     val place: String,
     val department: String,
     val phoneNumberUser: String,
@@ -20,5 +21,5 @@ data class Event(
     val country: String
 ) {
     // Constructor sin argumentos requerido por Firestore
-    constructor() : this("", 0, 0, 0, 0, "", "", "", 0L, false, false, "")
+    constructor() : this("", 0, 0, 0, 0, 0, "", "", "", 0L, false, false, "")
 }

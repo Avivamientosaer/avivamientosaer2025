@@ -22,6 +22,7 @@ fun calculateStatistics(events: List<Event>): ReportData {
         totalMen = events.sumOf { it.menCount },       // Suma de menCount
         totalWomen = events.sumOf { it.womenCount },   // Suma de womenCount
         totalYouth = events.sumOf { it.youthCount },   // Suma de youthCount
+        totalMinistrations = events.sumOf { it.ministrationCount },  // Suma de ministrationCount
         places = events.map { it.place }.toSet()       // Lugares únicos
     )
 }

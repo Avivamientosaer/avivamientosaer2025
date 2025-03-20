@@ -46,9 +46,10 @@ fun EventRegistrationScreen(
     onBack: () -> Unit
 ) {
     var eventNumber by remember { mutableStateOf("1") } // Valor predeterminado: 1
-    var menCount by remember { mutableStateOf("0") }    // Valor predeterminado: 0
-    var womenCount by remember { mutableStateOf("0") }  // Valor predeterminado: 0
-    var youthCount by remember { mutableStateOf("0") }   // Valor predeterminado: 0
+    var menCount by remember { mutableStateOf("") }
+    var womenCount by remember { mutableStateOf("") }
+    var youthCount by remember { mutableStateOf("") }
+    var ministrationCount by remember { mutableStateOf("") }
     var place by remember { mutableStateOf("") }
     var department by remember { mutableStateOf("") }
     var message by remember { mutableStateOf("") }
@@ -60,7 +61,7 @@ fun EventRegistrationScreen(
 
     // Arreglo de FocusRequester para manejar el foco entre los campos
     val focusRequesters = remember {
-        Array(6) { FocusRequester() }
+        Array(7) { FocusRequester() }
     }
     val keyboardController = LocalSoftwareKeyboardController.current
 
@@ -184,88 +185,58 @@ fun EventRegistrationScreen(
                 )
             }
 
-            // Campo para hombres con texto descriptivo
+            // Campo para Hombres y Mujeres en la misma línea
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text(
-                    text = "Hombres:",
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        fontSize = MaterialTheme.typography.bodyLarge.fontSize * 1.2f,
-                        fontWeight = FontWeight.Bold
-                    ),
-                    modifier = Modifier.weight(0.3f)
-                )
+                // Campo Hombres
                 OutlinedTextField(
                     value = menCount,
                     onValueChange = { menCount = it },
-                    label = { Text("Cantidad de hombres") },
+                    label = { Text("Cantidad de Hombres", fontWeight = FontWeight.Bold) },
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Number,
                         imeAction = ImeAction.Next
                     ),
                     keyboardActions = KeyboardActions(
-                        onNext = { focusRequesters[2].requestFocus() }
+                        onNext = { focusRequesters[2].requestFocus() } // Foco a Jóvenes
                     ),
                     modifier = Modifier
-                        .weight(0.7f)
+                        .weight(1f)
                         .focusRequester(focusRequesters[1]),
-                    textStyle = getTextStyle(menCount) // Aplicar estilo condicional
+                    textStyle = getTextStyle(menCount)
                 )
-            }
 
-            // Campo para mujeres con texto descriptivo
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Text(
-                    text = "Mujeres:",
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        fontSize = MaterialTheme.typography.bodyLarge.fontSize * 1.2f,
-                        fontWeight = FontWeight.Bold
-                    ),
-                    modifier = Modifier.weight(0.3f)
-                )
+                // Campo Mujeres
                 OutlinedTextField(
                     value = womenCount,
                     onValueChange = { womenCount = it },
-                    label = { Text("Cantidad de mujeres") },
+                    label = { Text("Cantidad de Mujeres", fontWeight = FontWeight.Bold) },
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Number,
                         imeAction = ImeAction.Next
                     ),
                     keyboardActions = KeyboardActions(
-                        onNext = { focusRequesters[3].requestFocus() }
+                        onNext = { focusRequesters[3].requestFocus() } // Foco a Jóvenes
                     ),
                     modifier = Modifier
-                        .weight(0.7f)
+                        .weight(1f)
                         .focusRequester(focusRequesters[2]),
-                    textStyle = getTextStyle(womenCount) // Aplicar estilo condicional
+                    textStyle = getTextStyle(womenCount)
                 )
             }
 
-            // Campo para jóvenes con texto descriptivo
+            // Campo para jóvenes y ministración
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text(
-                    text = "Jóvenes:",
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        fontSize = MaterialTheme.typography.bodyLarge.fontSize * 1.2f,
-                        fontWeight = FontWeight.Bold
-                    ),
-                    modifier = Modifier.weight(0.3f)
-                )
+                // Campo Jóvenes
                 OutlinedTextField(
                     value = youthCount,
                     onValueChange = { youthCount = it },
-                    label = { Text("Cantidad de jóvenes") },
+                    label = { Text("Cantidad de Jóvenes", fontWeight = FontWeight.Bold) },
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Number,
                         imeAction = ImeAction.Next
@@ -274,9 +245,29 @@ fun EventRegistrationScreen(
                         onNext = { focusRequesters[4].requestFocus() }
                     ),
                     modifier = Modifier
-                        .weight(0.7f)
+                        .weight(1f)
                         .focusRequester(focusRequesters[3]),
-                    textStyle = getTextStyle(youthCount)// Aplicar estilo condicional
+                    textStyle = getTextStyle(youthCount),
+                    //    placeholder = { Text("Ej: 1") }  // Placeholder para guiar al usuario
+                )
+
+                // Campo Ministración
+                OutlinedTextField(
+                    value = ministrationCount,
+                    onValueChange = { ministrationCount = it },
+                    label = { Text("Ministración", fontWeight = FontWeight.Bold) },
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Next
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onNext = { focusRequesters[5].requestFocus() }
+                    ),
+                    modifier = Modifier
+                        .weight(1f)
+                        .focusRequester(focusRequesters[4]),
+                    textStyle = getTextStyle(ministrationCount),
+                    //    placeholder = { Text("Ej: 1") }
                 )
             }
 
@@ -301,11 +292,11 @@ fun EventRegistrationScreen(
                         imeAction = ImeAction.Next
                     ),
                     keyboardActions = KeyboardActions(
-                        onNext = { focusRequesters[5].requestFocus() }
+                        onNext = { focusRequesters[6].requestFocus() }
                     ),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .focusRequester(focusRequesters[4]),
+                        .focusRequester(focusRequesters[5]),
                     textStyle = LocalTextStyle.current.copy(color = Color.Black)
                 )
 
@@ -325,7 +316,7 @@ fun EventRegistrationScreen(
                                     .clickable {
                                         place = suggestion
                                         filteredPlaces = emptyList() // Ocultar sugerencias
-                                        focusRequesters[5].requestFocus() // Mover foco al siguiente campo
+                                        focusRequesters[6].requestFocus() // Mover foco al siguiente campo
                                     }
                                     .padding(8.dp),
                                 style = MaterialTheme.typography.bodyMedium.copy(color = Color.Blue)
@@ -355,7 +346,7 @@ fun EventRegistrationScreen(
                     ),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .focusRequester(focusRequesters[5]),
+                        .focusRequester(focusRequesters[6]),
                     textStyle = LocalTextStyle.current.copy(color = Color.Black)
                 )
 
@@ -400,17 +391,8 @@ fun EventRegistrationScreen(
                         (womenCount.toIntOrNull() ?: 0) <= 0 &&
                         (youthCount.toIntOrNull() ?: 0) <= 0
                     ) {
-                        message = "Al menos un campo (hombres, mujeres, jóvenes) debe ser > 0."
-                        keyboardController?.hide()
-                        return@Button
-                    }
-
-                    // Validar campos obligatorios
-                    if (eventNumber.isBlank() || menCount.isBlank() ||
-                        womenCount.isBlank() || youthCount.isBlank() ||
-                        place.isBlank() || department.isBlank()
-                    ) {
-                        message = "Todos los campos son obligatorios."
+                        message =
+                            "Al menos un campo (hombres, mujeres, jóvenes) debe ser mayor a 0."
                         keyboardController?.hide()
                         return@Button
                     }
@@ -439,6 +421,7 @@ fun EventRegistrationScreen(
                             menCount = menCount.toIntOrNull() ?: 0,
                             womenCount = womenCount.toIntOrNull() ?: 0,
                             youthCount = youthCount.toIntOrNull() ?: 0,
+                            ministrationCount = ministrationCount.toIntOrNull() ?: 0,
                             place = finalPlace,
                             department = finalDepartment,
                             country = country, // País obtenido del GPS
@@ -446,7 +429,8 @@ fun EventRegistrationScreen(
                             context = context,
                             onSuccess = {
                                 isLoading = false
-                                message = "✅ Evento guardado localmente. Se sincronizará automáticamente."
+                                message =
+                                    "✅ Evento guardado localmente. Se sincronizará automáticamente."
                                 onEventRegistered()
                             },
                             onFailure = { error ->

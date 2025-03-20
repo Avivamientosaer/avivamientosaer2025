@@ -166,7 +166,7 @@ fun StatisticCard(title: String, stats: ReportData) {
             )
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Eventos y Hombres en la misma línea
+            // Eventos, hombres y mujeres en la misma línea
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = "Eventos: ",
@@ -193,10 +193,7 @@ fun StatisticCard(title: String, stats: ReportData) {
                         fontSize = MaterialTheme.typography.bodyMedium.fontSize * 1.5f // 50% más grande
                     )
                 )
-            }
-
-            // Mujeres y Jóvenes en la misma línea
-            Row(verticalAlignment = Alignment.CenterVertically) {
+                Spacer(modifier = Modifier.width(20.dp)) // Espacio entre Hombres y Mujeres
                 Text(
                     text = "Mujeres: ",
                     style = MaterialTheme.typography.bodyMedium.copy(color = Color.Black)
@@ -209,7 +206,12 @@ fun StatisticCard(title: String, stats: ReportData) {
                         fontSize = MaterialTheme.typography.bodyMedium.fontSize * 1.5f // 50% más grande
                     )
                 )
-                Spacer(modifier = Modifier.width(20.dp)) // Espacio entre Mujeres y Jóvenes
+
+            }
+
+            // Jóvenes y Ministraciones en la misma línea
+            Row(verticalAlignment = Alignment.CenterVertically) {
+
                 Text(
                     text = "Jóvenes: ",
                     style = MaterialTheme.typography.bodyMedium.copy(color = Color.Black)
@@ -222,6 +224,20 @@ fun StatisticCard(title: String, stats: ReportData) {
                         fontSize = MaterialTheme.typography.bodyMedium.fontSize * 1.5f // 50% más grande
                     )
                 )
+                Spacer(modifier = Modifier.width(20.dp)) // Espacio entre Jóvenes y Ministraciones
+                Text(
+                    text = "Ministraciones: ",
+                    style = MaterialTheme.typography.bodyMedium.copy(color = Color.Black)
+                )
+                Text(
+                    text = "${stats.totalMinistrations}",
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF1976D2),
+                        fontSize = MaterialTheme.typography.bodyMedium.fontSize * 1.5f // 50% más grande
+                    )
+                )
+
             }
 
             // Lugares únicos

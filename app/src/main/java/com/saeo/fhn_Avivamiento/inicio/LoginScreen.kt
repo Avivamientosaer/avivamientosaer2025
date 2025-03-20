@@ -1,12 +1,15 @@
 package com.saeo.fhn_Avivamiento.inicio
 
 import android.content.Context
+import android.graphics.Color.blue
 import android.util.Log
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -58,7 +61,7 @@ class LargeAsteriskTransformation : VisualTransformation {
 @Composable
 fun LoginScreen(
     context: Context,
-    onLoginSuccess: () -> Unit,
+    onLoginSuccess: (destination: String) -> Unit,
     onNavigateToSignUp: () -> Unit
 ) {
     var countries by remember { mutableStateOf<List<Pair<String, String>>>(emptyList()) }
@@ -188,8 +191,10 @@ fun LoginScreen(
         Column(
             modifier = Modifier
                 .padding(innerPadding)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState())
+                .animateContentSize(),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             AnimatedVisibility(
@@ -230,7 +235,8 @@ fun LoginScreen(
                         .weight(1f)
                 ) {
                     OutlinedTextField(
-                        value = if (isLoadingCountries) "Cargando..." else selectedCountry?.first ?: savedCountryCode ?: "",
+                        value = if (isLoadingCountries) "Cargando..." else selectedCountry?.first
+                            ?: savedCountryCode ?: "",
                         onValueChange = { },
                         readOnly = true,
                         label = {
@@ -299,7 +305,8 @@ fun LoginScreen(
                 }
 
                 // Mostrar el nombre del país subrayado
-                val savedCountryName by UserPreferences.getCountryName(context).collectAsState(initial = null)
+                val savedCountryName by UserPreferences.getCountryName(context)
+                    .collectAsState(initial = null)
 
                 AnimatedContent(
                     targetState = savedCountryName,
@@ -381,6 +388,70 @@ fun LoginScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
+            // Botón Buscar Tetimonios
+            AnimatedVisibility(
+                visible = !isLoading,
+                enter = fadeIn() + expandVertically(),
+                exit = fadeOut() + shrinkVertically()
+            ) {
+                Button(
+                    onClick = {
+                        val fullPhoneNumber = "${selectedCountry?.first.orEmpty()}$phoneNumber"
+                        isLoading = true
+                        errorMessage = ""
+                        coroutineScope.launch {
+                            UserPreferences.saveUserData(
+                                context = context,
+                                countryCode = selectedCountry?.first.orEmpty(),
+                                countryName = selectedCountry?.second.orEmpty(),
+                                phoneNumber = phoneNumber,
+                                password = password
+                            )
+
+                            signInUser(
+                                context = context,
+                                phoneNumber = fullPhoneNumber,
+                                password = password,
+                                onSuccess = {
+                                    isLoading = false
+                                    onLoginSuccess("testimonies") // Destino diferente
+                                },
+                                onFailure = { error ->
+                                    isLoading = false
+                                    errorMessage = error
+                                }
+                            )
+                        }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 12.dp),
+                    enabled = selectedCountry != null && phoneNumber.isNotBlank() && password.isNotBlank(),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                ) {
+                    if (isLoading) {
+                        CircularProgressIndicator(
+                            color = MaterialTheme.colorScheme.onSecondaryContainer,
+                            strokeWidth = 2.dp
+                        )
+                    } else {
+                        Text(
+                            "👨‍💼  Lista Testimonios  👩‍💼",
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                fontWeight = FontWeight.ExtraBold,
+                                color = Color.Blue,
+                                fontSize = MaterialTheme.typography.bodyLarge.fontSize * 1.75f
+                            )
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(15.dp))
+
             // Botón de inicio de sesión
             Button(
                 onClick = {
@@ -403,7 +474,7 @@ fun LoginScreen(
                             password = password,
                             onSuccess = {
                                 isLoading = false
-                                onLoginSuccess()
+                                onLoginSuccess("events")
                             },
                             onFailure = { error ->
                                 isLoading = false
@@ -418,7 +489,13 @@ fun LoginScreen(
                 if (isLoading) {
                     CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary)
                 } else {
-                    Text("Iniciar Sesión")
+                    Text(
+                        "🏡  Eventos de Avivamiento",
+                        style = MaterialTheme.typography.bodyLarge.copy(
+                            fontWeight = FontWeight.ExtraBold,
+                            fontSize = MaterialTheme.typography.bodyLarge.fontSize * 1.2f
+                        )
+                    )
                 }
             }
 

@@ -25,6 +25,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.saeo.fhn_Avivamiento.inicio.LoginScreen
 import com.saeo.fhn_Avivamiento.registro_usuario.SignUpScreen
+import com.saeo.fhn_Avivamiento.testimonios.ui.AddTestimonyScreen
+import com.saeo.fhn_Avivamiento.testimonios.ui.TestimonyListScreen
 import com.saeo.fhn_Avivamiento.utils.UserPreferences
 
 class MainActivity : ComponentActivity() {
@@ -111,12 +113,11 @@ class MainActivity : ComponentActivity() {
                     "login" -> {
                         LoginScreen(
                             context = this@MainActivity,
-                            onLoginSuccess = {
-                                Log.d(
-                                    "MainActivity",
-                                    "Inicio de sesión exitoso. Navegando a eventList"
-                                )
-                                currentScreen = "eventList"
+                            onLoginSuccess = { destination ->
+                                when (destination) {
+                                    "events" -> currentScreen = "eventList"
+                                    "testimonies" -> currentScreen = "testimonyList"
+                                }
                             },
                             onNavigateToSignUp = {
                                 Log.d("MainActivity", "Navegando a SignUpScreen")
@@ -209,6 +210,19 @@ class MainActivity : ComponentActivity() {
                             Log.e("MainActivity", "Error: selectedEvent es null")
                             currentScreen = "eventList" // Volver a la lista en caso de error
                         }
+                    }
+
+                    "testimonyList" -> {
+                        TestimonyListScreen(
+                            onNavigateToAddTestimony = { currentScreen = "addTestimony" },
+                            onBack = { currentScreen = "login" }
+                        )
+                    }
+                    "addTestimony" -> {
+                        AddTestimonyScreen(
+                            onTestimonySaved = { currentScreen = "testimonyList" },
+                            onBack = { currentScreen = "testimonyList" }
+                        )
                     }
 
                     "reportScreen" -> {

@@ -5,5 +5,6 @@ data class ReportData(
     val totalMen: Int = 0,     // Suma de menCount
     val totalWomen: Int = 0,   // Suma de womenCount
     val totalYouth: Int = 0 ,   // Suma de youthCount
+    val totalMinistrations: Int = 0,  // Suma de ministrationCount
     val places: Set<String> = emptySet() // Lugares únicos
 )
